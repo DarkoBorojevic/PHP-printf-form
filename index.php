@@ -1,4 +1,4 @@
-
+<!--home page-->
 <!DOCTYPE html>
 <html>
 	<head>
@@ -24,7 +24,7 @@
 				-webkit-border-radius: 4px;
 			}
 
-			input[type=submit]{
+			input[type=submit], input[type=reset]{
 				background-color: #000f2f;
 				margin: 12px;
 				color: #fff;
@@ -96,7 +96,8 @@
 				<textarea name="msgs">
 				</textarea><br>
 				<input type="checkbox" name="terms" value="ok">I accept Terms &amp; Conditions<br>
-				<input type="submit" name="sbmt" value="Send Data">							
+				<input type="submit" name="sbmt" value="Send Data">
+				<input type="reset" name="rst" value="Clear">							
 			</form>
 		</div>
 		<!--end formDiv-->

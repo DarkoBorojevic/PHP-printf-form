@@ -1,1 +1,1 @@
-# PHP-sprintf-form
+Form example using a print_f function 
