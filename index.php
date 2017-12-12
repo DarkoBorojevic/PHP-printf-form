@@ -1,10 +1,13 @@
 <!--home page-->
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
 		<title>
-			PHP SprintF contact form
+			PHP PrintF contact form
 		</title>
 		<style type="text/css">
 			html{
@@ -33,7 +36,7 @@
 				cursor: pointer;
 			}
 
-			#sprintF{
+			#printF{
 				margin: 0px auto;
 				padding: 12px;
 				position: relative;
@@ -45,38 +48,91 @@
 				color: #a4a;
 				font-weight: 400;
 			}
+
+			.err{
+				color: red;
+				padding: 6px;
+				width: 400px;
+				font-weight: bold;
+			}
+
+			.dot{
+				color: red;
+			}
 		</style>
 	</head>
 	<body>
 		<?php
+		/*
+		note that if you would put these inputs in a database
+		*you would have to use mysqli_real_escape_string for
+		*securing the input fields. 
+		*Here htmlspecialchars function will do fine.
+		*/
 			if (isset($_POST['sbmt'])) {
+				//we are setting ok var to true which is a default value
+				//later on if something is wrong with inputs this var is set to false
+				$ok = true;
+				//we are putting required inputs in array so we can check them all in a foreach loop
+				$requiredFields = ['name','password','gender','car','terms'];
+				//errors array is set as a session var which will be filled with errors later on
+				$_SESSION['errors'] = [];
+				//foreach loop that is checking if required inputs are empty values
+				foreach ($requiredFields as $requiredField) {
+					if (!isset($_POST[$requiredField]) || $_POST[$requiredField] === "") {
+						$ok = false;
+						$_SESSION['errors'][] = '<div class="err">'.$requiredField.' is empty!</div>';
 
-					$name 	= $_POST['name'];
-					$pswd 	= $_POST['pswd'];
-					$gend 	= $_POST['gender'];
-					$car 	= $_POST['car'];
-					$lang 	= implode(' ', $_POST['language']);
-					$msgs 	= $_POST['msgs'];
-					$term   = $_POST['terms'];
+						die(header("Location:index.php"));
+					}
+				}
+				//we check language input separately from others because language input is an array
+				if (!isset($_POST['language']) || !is_array($_POST['language']) || $_POST['language'] === "") {
+					$ok = false;
+					$_SESSION['errors'][] = '<div class="err">language field is empty!</div>';
+
+					die(header("Location:index.php"));
+				}
+				//if all ok we procede with the printf
+				if ($ok = true) {
+
+					unset($_SESSION['errors']);
 					
-					printf('<div id="sprintF">Username: %s
+					printf('
+					<div id="printF">Username: %s
 					<br><br>Password: %s
 					<br><br>Gender: %s
 					<br><br>Car: %s
 					<br><br>Languages: %s
 					<br><br>Message: %s</div><br>', 
-					$name,$pswd,$gend,$car,$lang,$msgs);
+					htmlspecialchars($_POST['name']),
+					htmlspecialchars($_POST['password']),
+					htmlspecialchars($_POST['gender']),
+					htmlspecialchars($_POST['car']),
+					htmlspecialchars(implode(" ", $_POST['language'])),
+					htmlspecialchars($_POST['msgs']),
+					htmlspecialchars($_POST['terms']));
+
+				}
 
 			}
 		?>
 		<div id="formDiv">
 			<form method="post" action="">
-				<p>USER NAME:</p> <input type="text" name="name">
-				<p>PASSWORD:</p> <input type="password" name="pswd">
-				<p>GENDER:</p>
+				<?php
+				if (isset($_SESSION['errors']) && $_SESSION['errors'] != "") {
+					foreach ($_SESSION['errors'] as $error) {
+						echo $error."<br>";
+					}
+				}
+				?>
+				<p>fields marked with <span class="dot">*</span> are obligatory</p>
+				<p>USER NAME:<span class="dot">*</span></p> <input type="text" name="name">
+				<p>PASSWORD:<span class="dot">*</span></p> <input type="password" name="password">
+				<p>GENDER:<span class="dot">*</span></p>
 				<input type="radio" name="gender" value="m">male<br>
 				<input type="radio" name="gender" value="f">female	
-				<p>FAVORITE CAR TYPE:</p>
+				<p>FAVORITE CAR TYPE:<span class="dot">*</span></p>
 				<select name="car">
 					<option value="bmw">bmw</option>
 					<option value="mercedes">mercedes</option>
@@ -84,7 +140,7 @@
 					<option value="audi">audi</option>
 					<option value="ford">ford</option>					
 				</select><br>
-				<p>LANGUAGES YOU SPEAK:</p>
+				<p>LANGUAGES YOU SPEAK:<span class="dot">*</span></p>
 				<select multiple name="language[]" size="5">
 					<option value="en">english</option>
 					<option value="de">german</option>
@@ -95,6 +151,7 @@
 				<p>MESSAGES:</p>
 				<textarea name="msgs">
 				</textarea><br>
+				<span class="dot">*</span>
 				<input type="checkbox" name="terms" value="ok">I accept Terms &amp; Conditions<br>
 				<input type="submit" name="sbmt" value="Send Data">
 				<input type="reset" name="rst" value="Clear">							
